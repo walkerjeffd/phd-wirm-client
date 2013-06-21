@@ -1,3 +1,5 @@
+App = window.App || {};
+
 App.Chart = function() {
   // private variables
   var margin = {top: 40, right: 20, bottom: 40, left: 50},
