@@ -1,3 +1,11 @@
+/* ============================================ 
+ * wirm.js v0.9.0 
+ * http://walkerjeffd.github.com/wirm/ 
+ * ============================================= 
+ * Copyright 2013 Jeffrey D. Walker 
+ * 
+ * Build Date: 2013-06-21 
+ * ============================================= */ 
 // helper function for getting CSRF from cookie
 function getCookie(name) {
   var cookieValue = null;
@@ -24,7 +32,8 @@ Backbone.sync = function(method, model, options){
     };
     return window.oldSync(method, model, options);
 };
-;// backbone namespacing
+
+// backbone namespacing
 window.App = {
   Models: {},
   Collections: {},
@@ -41,7 +50,8 @@ App.vent = _.extend({}, Backbone.Events);
 App.template = function(id) {
   return _.template( $('#' + id).html() );
 };
-;App = window.App || {};
+
+App = window.App || {};
 
 App.SimulationEngine = function(parameters) {
   var L_0 = parameters.L_0,
@@ -149,7 +159,8 @@ App.SimulationEngine = function(parameters) {
             'data': [[0, o_s],[soln.t[soln.t.length-1]*U*86.4, o_s]]
           };
   return [BOD, DO, DO_sat];
-};;App.Collections.Comments = Backbone.Collection.extend({
+};
+App.Collections.Comments = Backbone.Collection.extend({
   model: App.Models.Comment,
 
   url: function() {
@@ -160,7 +171,8 @@ App.SimulationEngine = function(parameters) {
     this.project = options.project;
   }
 });
-;App.Collections.Parameters = Backbone.Collection.extend({
+
+App.Collections.Parameters = Backbone.Collection.extend({
   model: App.Models.Parameter,
 
   url: '/api/parameters/',
@@ -192,12 +204,15 @@ App.SimulationEngine = function(parameters) {
       return keyValues;
   }
 });
-;App.Collections.Projects = Backbone.Collection.extend({
+
+App.Collections.Projects = Backbone.Collection.extend({
   model: App.Models.Project,
 
   url: '/api/projects/'
-});;App.Models.Comment = Backbone.Model.extend({
-});;App.Models.Parameter = Backbone.Model.extend({
+});
+App.Models.Comment = Backbone.Model.extend({
+});
+App.Models.Parameter = Backbone.Model.extend({
   urlRoot: '/api/parameters/',
 
   saveRevert: function() {
@@ -209,7 +224,8 @@ App.SimulationEngine = function(parameters) {
       this.set(this._revertAttributes);
     }
   }
-});;App.Models.Project = Backbone.Model.extend({
+});
+App.Models.Project = Backbone.Model.extend({
   urlRoot: '/api/projects/',
 
   defaults: {
@@ -242,7 +258,8 @@ App.SimulationEngine = function(parameters) {
       });
       Backbone.Model.prototype.save.call(this, attributes, options);
   }
-});;App.Router.Workspace = Backbone.Router.extend({
+});
+App.Router.Workspace = Backbone.Router.extend({
   routes: {
     "": "newProject",
     "projects": "projectList",
@@ -356,7 +373,8 @@ App.boot = function(container) {
   container = $(container);
   App.router = new App.Router.Workspace({el: container});
   Backbone.history.start({root: "/client/"});
-};;App.Chart = function() {
+};
+App.Chart = function() {
   // private variables
   var margin = {top: 40, right: 20, bottom: 40, left: 50},
       width = 500,
@@ -564,7 +582,8 @@ App.boot = function(container) {
   };
 
   return chart;
-};;App.Views.CommentTab = Backbone.View.extend({
+};
+App.Views.CommentTab = Backbone.View.extend({
   template: App.template('template-comment'),
 
   events: {
@@ -669,7 +688,8 @@ App.Views.CommentListItem = Backbone.View.extend({
       }
     });
   }
-});;App.Views.Controls = Backbone.View.extend({
+});
+App.Views.Controls = Backbone.View.extend({
   template: App.template('template-controls'),
 
   events: {
@@ -780,7 +800,8 @@ App.Views.ShareModal = Backbone.View.extend({
     this.remove();
   }
 });
-;App.Views.Dashboard = Backbone.View.extend({
+
+App.Views.Dashboard = Backbone.View.extend({
   template: App.template('template-dashboard'),
 
   initialize: function(options) {
@@ -869,7 +890,8 @@ App.Views.Tabs = Backbone.View.extend({
     return this;
   }
 });
-;App.Views.Error = Backbone.View.extend({
+
+App.Views.Error = Backbone.View.extend({
   template: App.template('template-error'),
 
   initialize: function(options) {
@@ -881,7 +903,8 @@ App.Views.Tabs = Backbone.View.extend({
     this.$el.html( this.template( {title: this.title, message: this.message} ) );
     return this;
   }
-});;App.Views.ParametersTab = Backbone.View.extend({
+});
+App.Views.ParametersTab = Backbone.View.extend({
   initialize: function(options) {
     console.log('INIT: parameters view');
     var view = this;
@@ -960,7 +983,8 @@ App.Views.ParameterSlider = Backbone.View.extend({
     return this;
   }
 });
-;// project info in dashboard header
+
+// project info in dashboard header
 App.Views.ProjectInfo = Backbone.View.extend({
   template: App.template('template-project-info'),
 
@@ -1170,7 +1194,8 @@ App.Views.ProjectModal = Backbone.View.extend({
     this.$('.alert').show();
   }
 });
-;App.Views.Simulation = Backbone.View.extend({
+
+App.Views.Simulation = Backbone.View.extend({
   initialize: function(options) {
     console.log('INIT: simulation');
     var view = this;
