@@ -1,34 +1,31 @@
-// project info in dashboard header
 App.Views.ProjectInfo = Backbone.View.extend({
   template: App.template('template-project-info'),
 
   events: {
     "click .btn-edit": "editProject",
-    "click .btn-delete": "deleteProject"
+    "click .btn-delete": "deleteProject",
+    "click .alert .btn-confirm": "deleteProjectConfirm",
+    "click .alert .btn-cancel": "deleteProjectCancel"
   },
 
   initialize: function(options) {
     console.log('INIT: project info');
     this.project = options.project;
     this.parameters = options.parameters;
-    this.listenTo(this.project, 'change', this.render, this);
+
+    this.listenTo(this.project, 'sync', this.render, this);
     this.listenTo(this.project, 'destroy', function() { App.router.navigate('/', {trigger: true}); });
   },
 
   render: function() {
-    var view = this;
     console.log('RENDER: project info');
     this.$el.html( this.template( this.project.toJSON() ) );
-    this.$('#project-details').toggle(!(this.project.isNew()));
     this.$('.alert').hide();
-    this.$('.alert .btn-confirm').on('click', function() {
-      view.project.destroy();
-    });
-    this.$('.alert .btn-cancel').on('click', function() {
-      view.$('.alert').toggle();
-    });
-    
     return this;
+  },
+
+  onClose: function() {
+    console.log('CLOSE: project info');
   },
 
   editProject: function() {
@@ -40,6 +37,14 @@ App.Views.ProjectInfo = Backbone.View.extend({
       // current user does not own project
       App.vent.trigger('status', 'error', 'Error: Only the owner of this project can edit it');
     }
+  },
+
+  deleteProjectConfirm: function() {
+    this.project.destroy();
+  },
+
+  deleteProjectCancel: function() {
+    this.$('.alert').toggle();
   },
 
   deleteProject: function() {
@@ -56,17 +61,18 @@ App.Views.ProjectInfo = Backbone.View.extend({
 });
 
 // project list
-App.Views.ProjectContainer = Backbone.View.extend({
+App.Views.ProjectListContainer = Backbone.View.extend({
   template: App.template('template-project-container'),
 
   initialize: function() {
-    console.log('INIT: project list view');
+    console.log('INIT: project list container');
     this.subViews = {};
     this.subViews.projectList = new App.Views.ProjectList({collection: this.collection});
-    this.listenTo(this.collection, 'sync add remove change', this.render);
+    // this.listenTo(this.collection, 'sync add remove change', this.render);
   },
 
   render: function() {
+    console.log('RENDER: project list container');
     this.$el.html( this.template() );
     if (!(App.router.isAuthenticated())) {
       this.$el.append('<p>You must be logged in to view saved projects. Click here to <a href="/accounts/login/">log in</a> or <a href="/accounts/register/">sign up</a>.</p>');
@@ -75,6 +81,10 @@ App.Views.ProjectContainer = Backbone.View.extend({
     } else {
       this.$el.append(this.subViews.projectList.render().el);
     }
+  },
+
+  onClose: function() {
+    console.log('CLOSE: project list container');
   }
 });
 
@@ -83,15 +93,28 @@ App.Views.ProjectList = Backbone.View.extend({
 
   className: 'project-list',
 
+  initialize: function() {
+    console.log('INIT: project list');
+    this.subViews = [];
+  },
+
   render: function() {
-    console.log('RENDER: project list view');
+    console.log('RENDER: project list');
     var view = this;
+
     this.$el.empty();
+
     this.collection.each(function(project) {
       var projectItem = new App.Views.ProjectListItem({model: project});
+      view.subViews.push(projectItem);
       view.$el.append(projectItem.render().el );
     });
+
     return this;
+  },
+
+  onClose: function() {
+    console.log('CLOSE: project list');
   }
 });
 
@@ -109,18 +132,25 @@ App.Views.ProjectListItem = Backbone.View.extend({
     'click .btn-delete': 'deleteProject'
   },
 
+  initialize: function() {
+    console.log('INIT: project list item for id ' + this.model.get('id'));
+  },
+
   render: function() {
     console.log('RENDER: project list item');
     var context = this.model.toJSON();
     var view = this;
+
     context.created = moment(context.created).format('MMM D YYYY h:mm a');
     context.updated = moment(context.updated).format('MMM D YYYY h:mm a');
     context.createdFromNow = moment(context.created).fromNow();
     context.updatedFromNow = moment(context.updated).fromNow();
     this.$el.html( this.template( context ) );
+    
     this.$('.alert').hide();
     this.$('.alert .btn-confirm').on('click', function() {
       view.model.destroy();
+      view.close();
     });
     this.$('.alert .btn-cancel').on('click', function() {
       view.$('.alert').toggle();
@@ -130,6 +160,10 @@ App.Views.ProjectListItem = Backbone.View.extend({
 
   deleteProject: function() {
     this.$('.alert').slideDown();
+  },
+
+  onClose: function() {
+    console.log('CLOSE: project list item for id ' + this.model.get('id'));
   }
 });
 
@@ -148,10 +182,13 @@ App.Views.ProjectModal = Backbone.View.extend({
     this.project = options.project;
     this.parameters = options.parameters;
     this.title = options.title || 'Create Project';
+
     this.project.set('parameter_values', this.parameters.getKeyValuePairs());
+
     this.listenTo(this.project, 'sync', this.postSave, this);
     this.listenTo(this.project, 'error', this.showError);
     this.listenTo(this.project, 'invalid', this.showInvalid);
+
     this.render();
   },
 
@@ -177,28 +214,25 @@ App.Views.ProjectModal = Backbone.View.extend({
   },
 
   postSave: function() {
-    console.log('project model: project saved');
+    console.log('SUCCESS: project saved');
     App.vent.trigger('status', 'success', 'Project saved');
     this.close();
     App.router.navigate('/projects/' + this.project.get('id'), {trigger: true});
   },
 
-  close: function() {
-    console.log('project modal: close');
+  onClose: function() {
+    console.log('CLOSE: project modal');
     this.$('.modal').modal('hide');
-    this.remove();
   },
 
   showError: function(model, xhr, options) {
-    console.log('Error saving model:');
+    console.log('ERROR: unable to save project');
     this.showStatus('Error: Unable to save model.');
-    // App.vent.trigger('status', 'error', 'Error saving model');
     console.log(xhr);
   },
 
   showInvalid: function(model, error, options) {
     this.showStatus('Error: ' + error);
-    // App.vent.trigger('status', 'error', 'Model Validation Failed');
     console.log('Invalid model: ' + error);
   },
 

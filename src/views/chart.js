@@ -1,31 +1,39 @@
-App.Views.Simulation = Backbone.View.extend({
+// chart view of simulation model output
+App.Views.Chart = Backbone.View.extend({
   initialize: function(options) {
-    console.log('INIT: simulation');
+    console.log('INIT: chart');
     var view = this;
 
     this.engine = options.engine;
     this.parameters = options.parameters;
 
-    this.listenToOnce(this.parameters, 'sync', this.update);
-    this.listenTo(this.parameters, 'change:value', this.update);
+    this.rendered = false;
 
     this.chart = new App.Chart();
 
     _.each(this.options.chartOptions, function(value, key) {
       view.chart[key](value);
     });
+
+    this.listenTo(this.parameters, 'change:value', this.update);
   },
 
   render: function() {
-    console.log('RENDER: simulation');
+    console.log('RENDER: chart');
     this.chart(this.el);
+    this.rendered = true;
     return this;
   },
 
   update: function() {
-    if (this.parameters.length > 0) {
+    console.log('UPDATE: chart');
+    if (this.rendered) {
       this.chart.data( this.engine( this.parameters.getKeyValuePairs() ) );
     }
     return this;
+  },
+
+  onClose: function() {
+    console.log('CLOSE: chart view');
   }
 });

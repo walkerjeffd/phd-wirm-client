@@ -25,10 +25,13 @@ App.Models.Project = Backbone.Model.extend({
   save: function(attributes, options) {
       // cleanup attributes before saving
       var that = this;
+
+      // prevent sending project comments to API
       var attrs = ['comments'];
       _.each(attrs, function(attr){
         that.unset(attr);
       });
+      
       Backbone.Model.prototype.save.call(this, attributes, options);
   }
 });

@@ -4,19 +4,27 @@ App.Views.ParametersTab = Backbone.View.extend({
     var view = this;
     this.parameters = options.parameters;
     this.group = options.group;
-    this.listenToOnce(this.parameters, 'sync', this.render);
   },
 
   render: function() {
     console.log('RENDER: parameters view');
     var view = this;
+
     this.$el.empty();
-    var basicParameters = this.parameters.filter(function (model) { return model.get('group')===view.group;});
-    _.each(basicParameters, function(parameter) {
-        var parameterContainer = new App.Views.ParameterContainer({model: parameter});
-        view.$el.append(parameterContainer.el);
-      });
+
+    var thisParameters = this.parameters.filter(function (model) { 
+      return model.get('group')===view.group;
+    });
+    _.each(thisParameters, function(parameter) {
+      var parameterContainer = new App.Views.ParameterContainer({model: parameter});
+      view.$el.append(parameterContainer.el);
+    });
+
     return this;
+  },
+
+  onClose: function() {
+    console.log('CLOSE: parameters tab - ' + this.group);
   }
 });
 

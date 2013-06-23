@@ -11,24 +11,30 @@ App.Views.Controls = Backbone.View.extend({
     console.log('INIT: controls');
     this.project = options.project;
     this.parameters = options.parameters;
-    this.listenTo(this.project, 'change', this.render, this);
+
     App.vent.bind('status', this.showStatus, this);
   },
 
   render: function() {
     console.log('RENDER: controls');
     this.$el.html(this.template());
-    this.delegateEvents();
+
     if (this.project.isNew()) {
-      this.$('.btn-share').remove();
+      this.$('.btn-share').hide();
+      this.$('.btn-save').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Save to new project'});
       this.$('.btn-reset').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Reset parameters to default values'});
     } else {
+      this.$('.btn-share').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Share saved project with others'});
+      this.$('.btn-save').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Save project to server'});
       this.$('.btn-reset').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Reset parameters to last saved values'});
     }
+
     this.$('.alert').hide();
-    this.$('.btn-save').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Save to new project'});
-    this.$('.btn-share').tooltip({placement: 'bottom', trigger: 'hover', container: 'body', title: 'Share saved project with others'});
     return this;
+  },
+
+  onClose: function() {
+    console.log('CLOSE: controls');
   },
 
   saveProject: function() {
@@ -38,7 +44,7 @@ App.Views.Controls = Backbone.View.extend({
       // project is new
       if (App.router.isAuthenticated()) {
         // user is logged in
-        this.$('.btn-save').tooltip('hide');
+        // view.$('.btn-save').tooltip('hide');
         var projectModal = new App.Views.ProjectModal({project: this.project, parameters: this.parameters, parent: this});
       } else {
         // user is not logged in
@@ -50,8 +56,12 @@ App.Views.Controls = Backbone.View.extend({
         // current user owns project
         this.project.save({parameter_values: this.parameters.getKeyValuePairs()}, {
           success: function() {
-            console.log('success');
+            // view.$('.btn-save').tooltip('hide');
             App.vent.trigger('status', 'success', 'Success: Project saved');
+            App.vent.trigger('save:parameters');
+          },
+          error: function(model, response, options) {
+            App.vent.trigger('status', 'error', 'Error: unable to save project parameter values');
           }
         });
       } else {
@@ -78,6 +88,7 @@ App.Views.Controls = Backbone.View.extend({
   shareProject: function() {
     console.log('Sharing project ' + this.project.get('id'));
     var modal = new App.Views.ShareModal();
+    modal.render();
   }
 });
 
@@ -92,7 +103,6 @@ App.Views.ShareModal = Backbone.View.extend({
 
   initialize: function(options) {
     console.log('INIT: share modal');
-    this.render();
   },
 
   render: function() {
@@ -103,9 +113,8 @@ App.Views.ShareModal = Backbone.View.extend({
     return this;
   },
 
-  close: function() {
-    console.log('project modal: close');
+  onClose: function() {
+    console.log('CLOSE: share modal');
     this.$('.modal').modal('hide');
-    this.remove();
   }
 });
