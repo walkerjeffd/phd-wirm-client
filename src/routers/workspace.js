@@ -96,7 +96,7 @@ App.Router.Workspace = Backbone.Router.extend({
 
     var project = new App.Models.Project({id: id});
     var parameters = new App.Collections.Parameters();
-    var comments = new App.Collections.Comments([], {project: this.project});
+    var comments = new App.Collections.Comments([], {project: project});
 
     // initialize dashboard view
     var dashboard = new App.Views.Dashboard({parameters: parameters,
@@ -112,7 +112,7 @@ App.Router.Workspace = Backbone.Router.extend({
               parameter.set('value', projectParameters[parameter.get('key')]);
             });
             App.vent.trigger('save:parameters');
-
+            comments.fetch();
             router.showView(dashboard);
           },
           error: function(model, response, options) {

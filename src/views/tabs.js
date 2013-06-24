@@ -10,8 +10,8 @@ App.Views.Tabs = Backbone.View.extend({
     this.subViews = {};
     this.subViews.basicTab = new App.Views.ParametersTab({parameters: this.parameters, group: 'basic'});
     this.subViews.advancedTab = new App.Views.ParametersTab({parameters: this.parameters, group: 'advanced'});
-    if (this.comments) {
-      this.subViews.commentTab = new App.Views.CommentTab({collection: this.comments});
+    if (!this.project.isNew()) {
+      this.subViews.commentTab = new App.Views.CommentTab({collection: this.comments, project: this.project});
     }
   },
 
@@ -23,11 +23,12 @@ App.Views.Tabs = Backbone.View.extend({
     this.$('#tab-param-basic').html(this.subViews.basicTab.render().el);
     this.$('#tab-param-advanced').html(this.subViews.advancedTab.render().el);
 
-    // if (this.comments) {
-    //   this.$('ul.nav').append('<li><a href="#tab-comments" data-toggle="tab">Comments</a></li>');
-    //   this.$('.tab-content').append('<div class="tab-pane fade" id="tab-comments"></div>');
-    //   this.subViews.commentTab.setElement(this.$('#tab-comments')).render();
-    // }
+    if (this.project.isNew()) {
+      this.$('ul.nav-tabs > li:last').remove();
+      this.$('#tab-comments').remove();
+    } else {
+      this.$('#tab-comments').html(this.subViews.commentTab.render().el);
+    }
 
     return this;
   },
