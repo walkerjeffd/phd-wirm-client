@@ -17,12 +17,15 @@ Dependencies
 ------------
 The WIRM client application requires the following JavaScript packages:
 
+* [Twitter Bootstrap](http://twitter.github.io/bootstrap/)
 * [jQuery](http://jquery.com)
 * [jQuery-ui](http://jqueryui.com)
 * [underscore.js](http://underscorejs.org)
+* [modernizr.js](http://modernizr.com/)
 * [backbone.js](http://backbonejs.orrg)
 * [d3.js](http://d3js.org)
 * [numeric.js](http://numericjs.com)
+* [moment.js](http://momentjs.com)
 
 Building Instructions
 ---------------------
