@@ -1,8 +1,10 @@
 Web-based Interactive River Model (WIRM)
 ========================================
-Jeffrey D. Walker
 
-http://wirm.walkerjeff.com/
+Jeffrey D. Walker
+[Walker Environmental Research LLC](https://walkerenvres.com)
+
+https://wirm.walkerenvres.com/
 
 About
 -----
